@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         ChatGPT 微工具
 // @namespace    https://github.com/feixqemn
-// @version      0.3.1
+// @version      0.3.2
 // @description  中文 Markdown 加粗修复、页面加宽、公式双击复制、表格复制 Markdown、页面清理与链接提示词。
 // @author       feixqemn
 // @match        https://chatgpt.com/*
 // @icon         https://chatgpt.com/favicon.ico
 // @homepageURL  https://github.com/feixqemn/chatgpt-web-tools
-// @updateURL    https://gist.githubusercontent.com/feixqemn/1a173d4e6338798008d28297bf8475f6/raw/chatgpt-micro-tools.user.js
-// @downloadURL  https://gist.githubusercontent.com/feixqemn/1a173d4e6338798008d28297bf8475f6/raw/chatgpt-micro-tools.user.js
+// @updateURL    https://github.com/feixqemn/chatgpt-web-tools/releases/latest/download/chatgpt-micro-tools.user.js
+// @downloadURL  https://github.com/feixqemn/chatgpt-web-tools/releases/latest/download/chatgpt-micro-tools.user.js
 // @run-at       document-idle
 // @noframes
 // @grant        GM_getValue

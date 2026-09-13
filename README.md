@@ -1,5 +1,9 @@
 # ChatGPT Web Tools
 
+**ChatGPT 网页增强油猴脚本 / A Tampermonkey userscript for ChatGPT.**
+
+中文说明见下方；[English guide](#english)。这不是浏览器扩展或独立应用，需要先安装 Tampermonkey，仅作用于 `chatgpt.com`。
+
 一份从零实现的 ChatGPT 单站点油猴脚本。它只保留六项阅读/复制与页面清理功能，以及一个很轻的提示词入口，不包含侧栏、会话管理、导出系统、主题系统、框架运行时或远端服务。
 
 脚本文件：[chatgpt-micro-tools.user.js](./chatgpt-micro-tools.user.js)
@@ -22,23 +26,20 @@
 两端安装的是同一个文件，没有 macOS/Windows 分支，也没有平台路径依赖。
 
 1. 在 Chrome、Edge 或 Firefox 安装 Tampermonkey（Violentmonkey 也兼容脚本所用的传统 GM API）。
-2. 登录 GitHub 后，从 [最新 Release](https://github.com/feixqemn/chatgpt-web-tools/releases/latest) 下载附件 `chatgpt-micro-tools.user.js`，拖入油猴管理面板并确认安装。不要下载 Source code 压缩包。也可以直接打开[自动更新安装地址](https://gist.githubusercontent.com/feixqemn/1a173d4e6338798008d28297bf8475f6/raw/chatgpt-micro-tools.user.js)。
+2. 从 [最新 Release](https://github.com/feixqemn/chatgpt-web-tools/releases/latest) 下载附件 `chatgpt-micro-tools.user.js`，拖入油猴管理面板并确认安装。不要下载 Source code 压缩包。也可以直接打开[安装与自动更新地址](https://github.com/feixqemn/chatgpt-web-tools/releases/latest/download/chatgpt-micro-tools.user.js)。
 3. 此后由脚本元数据中的 `@updateURL` / `@downloadURL` 让油猴管理器自动获取新版本，不再拖放本地文件。
 4. 刷新 `https://chatgpt.com/`。
 
 设置、本地提示词和 GitHub Token 保存在各浏览器自己的油猴隔离存储中，不会假装已经做了跨设备数据库同步。链接提示词以 URL 为唯一来源：两端保存同一个 GitHub 链接后，每次选用都会读取最新内容，因此提示词正文不需要手动在两端复制。建议 macOS 和 Windows 分别创建一个 Token，方便单独撤销。
 
-自动更新源是一个不在 GitHub 个人主页公开列出的 Secret Gist，但为保证油猴管理器无需 GitHub 登录即可读取，持有更新地址的人仍能查看脚本源码。源码不包含 GitHub Token 或提示词数据。
-
-源码仓库及 Release 为私有；自动更新继续使用已有 Secret Gist。安装附件已内置更新地址，保持油猴的脚本更新检查开启即可。更新检查遵循管理器的检查周期，并非发布后立即推送。脚本元数据保留原名称“ChatGPT 微工具”，以便覆盖旧版并保留设置，页面内标题为“ChatGPT Web Tools”。
+源码仓库及 Release 公开，自动更新直接读取最新 Release 附件，无需 GitHub 登录。安装附件已内置更新地址，保持油猴的脚本更新检查开启即可。更新检查遵循管理器的检查周期，并非发布后立即推送。脚本元数据保留原名称“ChatGPT 微工具”，以便覆盖旧版并保留设置，页面内标题为“ChatGPT Web Tools”。旧 Gist 更新源提供 0.3.2 作为迁移版本。
 
 ## 发布新版本
 
-提升脚本的 `@version`，提交并推送后，以同一份 `.user.js` 创建 Release 并更新现有 Gist：
+提升脚本的 `@version`，提交并推送后，以同一份 `.user.js` 创建 Release：
 
 ```sh
 gh release create v版本号 chatgpt-micro-tools.user.js --repo feixqemn/chatgpt-web-tools --title 'v版本号' --notes '本次变更说明'
-gh gist edit 1a173d4e6338798008d28297bf8475f6 --filename chatgpt-micro-tools.user.js chatgpt-micro-tools.user.js
 ```
 
 ## 链接提示词怎么用
@@ -120,7 +121,44 @@ Ophel Atlas 的更新记录也说明，整段重写 `innerHTML` 曾破坏站点�
 
 ## 版本
 
+- `0.3.2`：公开仓库，自动更新改为直接读取 GitHub Release；增加中英双语项目说明。
 - `0.3.1`：建立私有源码仓库及可直接安装的 Release 附件，保留已有油猴自动更新地址。
 - `0.3.0`：精简标题区与底部文案，增加核查提示开关；固定功能面板高度并只让提示词列表滚动，提示框宽度与面板一致；增加跨平台原生自动更新源。
 - `0.2.0`：增加固定私有 GitHub 来源的最小权限授权、保存时验证，以及强制 `#task` 截取。
 - `0.1.0`：首版，全新单文件实现。
+
+## English
+
+ChatGPT Web Tools is a small, single-file **Tampermonkey userscript for the ChatGPT website** (`chatgpt.com`). It is not a standalone app or browser extension. Install a userscript manager first. The same script works on macOS and Windows; its panel currently uses Chinese labels.
+
+### Features
+
+- Repair unrendered `**bold**` text in assistant responses without rewriting entire paragraphs.
+- Widen conversations and the composer, adjustable from 760 to 1440 pixels.
+- Double-click formulas to copy their existing LaTeX or MathML source, with optional `$` / `$$` delimiters.
+- Copy tables as Markdown using a small button on each assistant table.
+- Hide ChatGPT's “ChatGPT can make mistakes” footer using a toggle.
+- Save and insert prompts, import text URLs, and extract a Markdown heading section such as `#task`. Remote prompts are fetched again before use; failures do not silently insert stale content.
+- Use a compact, auto-collapsing bottom-right panel that follows ChatGPT's light/dark appearance. The features panel stays fixed while the prompt list can scroll.
+
+### Install and update
+
+1. Install Tampermonkey in your browser.
+2. Download **`chatgpt-micro-tools.user.js`** from the [latest Release](https://github.com/feixqemn/chatgpt-web-tools/releases/latest), drag it into the Tampermonkey dashboard, and confirm installation. Alternatively, open the [direct installation link](https://github.com/feixqemn/chatgpt-web-tools/releases/latest/download/chatgpt-micro-tools.user.js). Do not download the Source code archives for installation.
+3. Refresh ChatGPT. Keep Tampermonkey's update checking enabled: the script embeds `@updateURL` and `@downloadURL` pointing to the latest GitHub Release asset. Updates follow the manager's check interval.
+
+The repository and releases are public. No GitHub login is required to download or update. The metadata name remains “ChatGPT 微工具” to preserve the identity of existing installations.
+
+### Prompt storage and private GitHub access
+
+Settings, saved prompts, and tokens stay in each browser's userscript storage; they are not automatically synchronized between computers. Save the same remote prompt URL on both devices to fetch its latest content when selected.
+
+Private GitHub support is currently restricted to the configured `feixqemn/natural-trace-skills` source, `natural-trace-web/SKILL.md#task`; it is not a general private-repository importer. It requires a fine-grained token with Contents read-only access to that repository. The token is stored separately by the userscript manager, sent only to the configured GitHub API endpoint, and never included in the distributed script. Missing `#task` is rejected for this source.
+
+### Scope and limitations
+
+Only ChatGPT is supported. Formula copying requires source data retained by the page; complex table row spans are not reconstructed. GitHub blob links assume a branch name without slashes; use a Raw URL otherwise. ChatGPT DOM changes may require a script update. This release has not undergone a browser test pass.
+
+### Publishing
+
+Bump `@version`, commit and push, then attach the same `.user.js` file to a new GitHub Release. Existing installations check the latest Release URL. Licensed under [MIT](./LICENSE).
