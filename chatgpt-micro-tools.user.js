@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT 微工具
 // @namespace    https://github.com/feixqemn
-// @version      0.3.2
+// @version      0.3.3
 // @description  中文 Markdown 加粗修复、页面加宽、公式双击复制、表格复制 Markdown、页面清理与链接提示词。
 // @author       feixqemn
 // @match        https://chatgpt.com/*
@@ -10,6 +10,7 @@
 // @updateURL    https://github.com/feixqemn/chatgpt-web-tools/releases/latest/download/chatgpt-micro-tools.user.js
 // @downloadURL  https://github.com/feixqemn/chatgpt-web-tools/releases/latest/download/chatgpt-micro-tools.user.js
 // @run-at       document-idle
+// @sandbox      raw
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -23,6 +24,8 @@
   "use strict"
 
   const APP = "cmt"
+  const COMPOSER_FIX_INSTALLED = Symbol.for("chatgpt.keepComposerWhileInitializing")
+  const composerRenderWrappers = new WeakMap()
   const STORE_KEY = `${APP}:state:v1`
   const GITHUB_TOKEN_KEY = `${APP}:github-token:v1`
   const MAX_REMOTE_BYTES = 1024 * 1024
@@ -988,6 +991,8 @@
   function startContentObserver() {
     runtime.contentObserver?.disconnect()
     runtime.contentObserver = new MutationObserver((mutations) => {
+      // Run immediately: delaying this behind the content scan can miss a remount.
+      preserveMountedComposer()
       const relevant = mutations.some(
         (mutation) => mutation.type === "characterData" || mutation.addedNodes.length,
       )
@@ -998,6 +1003,41 @@
       characterData: true,
       subtree: true,
     })
+    if (!window[COMPOSER_FIX_INSTALLED]) {
+      window[COMPOSER_FIX_INSTALLED] = runtime.contentObserver
+    }
+    preserveMountedComposer()
+  }
+
+  function preserveMountedComposer() {
+    // Share the standalone fix's marker so only one installation owns the patch.
+    if (window[COMPOSER_FIX_INSTALLED] !== runtime.contentObserver) return
+    let node = document.querySelector("#prompt-textarea.ProseMirror")
+    while (node) {
+      const key = Object.keys(node).find((name) => name.startsWith("__reactFiber$"))
+      if (key) {
+        for (let fiber = node[key]; fiber; fiber = fiber.return) {
+          const props = fiber.memoizedProps
+          if (!props || !("allowDraftingWhileInitializing" in props) ||
+              !("onCreateNewCompletion" in props) || typeof fiber.type !== "function") continue
+          const original = fiber.type
+          let render = composerRenderWrappers.get(original)
+          if (!render) {
+            render = function (props) {
+              return original.call(this, { ...props, allowDraftingWhileInitializing: true })
+            }
+            composerRenderWrappers.set(original, render)
+            composerRenderWrappers.set(render, render)
+          }
+          // Patch both fibers only after the real editor has mounted.
+          fiber.type = render
+          if (fiber.alternate) fiber.alternate.type = render
+          return
+        }
+        return
+      }
+      node = node.parentElement
+    }
   }
 
   function scheduleContentScan(delay = 180) {

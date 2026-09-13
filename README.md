@@ -10,6 +10,7 @@
 
 ## 包含什么
 
+- 插件标签输入框修复：标签变化时保留已挂载的输入框，避免旧草稿恢复造成删除回退。默认生效，共用页面观察器；与独立修复脚本共用去重标记，无需另外安装。
 - 中文 Markdown 加粗修复：把 ChatGPT 响应中残留的 `**加粗**` 转成 `<strong>`。只替换文本节点，不重写整段 `innerHTML`；代码、公式和正在生成的最后一条响应会跳过。
 - 页面加宽：直接调整 ChatGPT 的 `--thread-content-max-width` 和对应容器；可在 760–1440 px 之间调节，对话与输入框保持一致。
 - 双击复制公式：从 KaTeX 自带的 TeX annotation 和 `<math>` 读取源代码，可选 LaTeX 或 MathML。
@@ -113,6 +114,7 @@ Ophel Atlas 的更新记录也说明，整段重写 `innerHTML` 曾破坏站点�
 
 ## 当前边界
 
+- 输入框修复沿用独立脚本的 `@sandbox raw` 页面执行环境，并依赖 ChatGPT 的 React 组件属性；站点实现变化可能需要更新。只在真实编辑器挂载后修补，不改变首次加载行为。
 - 只支持 ChatGPT 网页端，不尝试兼容 Gemini、Claude 等站点。
 - 公式复制依赖页面实际保留 KaTeX/MathML 源码；没有源码时不会根据视觉结果猜公式。
 - GitHub `blob` 链接按常见的单段分支名解析；分支名本身包含 `/` 时，请改用 GitHub 的 Raw 链接。
@@ -121,6 +123,7 @@ Ophel Atlas 的更新记录也说明，整段重写 `innerHTML` 曾破坏站点�
 
 ## 版本
 
+- `0.3.3`：并入插件标签输入框修复，默认保留已挂载编辑器，避免旧草稿恢复导致删除回退；共用现有观察器及独立脚本去重标记。
 - `0.3.2`：公开仓库，自动更新改为直接读取 GitHub Release；增加中英双语项目说明。
 - `0.3.1`：建立私有源码仓库及可直接安装的 Release 附件，保留已有油猴自动更新地址。
 - `0.3.0`：精简标题区与底部文案，增加核查提示开关；固定功能面板高度并只让提示词列表滚动，提示框宽度与面板一致；增加跨平台原生自动更新源。
@@ -133,6 +136,7 @@ ChatGPT Web Tools is a small, single-file **Tampermonkey userscript for the Chat
 
 ### Features
 
+- Keep the mounted composer when plugin tags change, preventing stale draft restoration from undoing deletions. Always enabled; shares the existing observer and the standalone fix's deduplication marker.
 - Repair unrendered `**bold**` text in assistant responses without rewriting entire paragraphs.
 - Widen conversations and the composer, adjustable from 760 to 1440 pixels.
 - Double-click formulas to copy their existing LaTeX or MathML source, with optional `$` / `$$` delimiters.
@@ -156,6 +160,8 @@ Settings, saved prompts, and tokens stay in each browser's userscript storage; t
 Private GitHub support is currently restricted to the configured `feixqemn/natural-trace-skills` source, `natural-trace-web/SKILL.md#task`; it is not a general private-repository importer. It requires a fine-grained token with Contents read-only access to that repository. The token is stored separately by the userscript manager, sent only to the configured GitHub API endpoint, and never included in the distributed script. Missing `#task` is rejected for this source.
 
 ### Scope and limitations
+
+The composer fix uses the original script's `@sandbox raw` page context and depends on ChatGPT's React component properties. It only patches after the actual editor mounts; future site changes may require an update.
 
 Only ChatGPT is supported. Formula copying requires source data retained by the page; complex table row spans are not reconstructed. GitHub blob links assume a branch name without slashes; use a Raw URL otherwise. ChatGPT DOM changes may require a script update. This release has not undergone a browser test pass.
 
